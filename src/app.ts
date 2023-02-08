@@ -1,46 +1,36 @@
+require('dotenv').config()
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 
-const typeDefs = `#graphql
-  # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
+import { resolvers } from './resolvers/book'
+import { typeDefs } from './schemas/book'
 
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
-  }
+import { BooksAPI } from './datasources/books';
 
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
-  type Query {
-    books: [Book]
-  }
-`;
+interface Context {
+  dataSources: {
+    booksAPI: BooksAPI;
+  };
+  // token?: string;
+}
 
-const books = [
-  {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
-  },
-  {
-    title: 'City of Glass',
-    author: 'Paul Auster',
-  },
-];
-
-const resolvers = {
-  Query: {
-    books: () => books,
-  },
-};
-
-const server = new ApolloServer({
+const server = new ApolloServer<Context>({
   typeDefs,
   resolvers,
 });
 
 export async function startServer() {
-  const { url } = await startStandaloneServer(server, {});
+  const { url } = await startStandaloneServer(server, {
+    context: async () => {
+      const { cache } = server;
+      //  const token = req.headers.token;
+       return {
+        dataSources: {
+          booksAPI: new BooksAPI({cache}),
+        },
+        // token,
+      }
+    },
+  });
   return url;
 }
