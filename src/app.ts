@@ -11,7 +11,6 @@ interface Context {
   dataSources: {
     booksAPI: BooksAPI;
   };
-  // token?: string;
 }
 
 const server = new ApolloServer<Context>({
@@ -23,12 +22,10 @@ export async function startServer() {
   const { url } = await startStandaloneServer(server, {
     context: async () => {
       const { cache } = server;
-      //  const token = req.headers.token;
        return {
         dataSources: {
           booksAPI: new BooksAPI({cache}),
         },
-        // token,
       }
     },
   });
