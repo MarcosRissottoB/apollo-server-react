@@ -1,33 +1,51 @@
 require('dotenv').config()
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
-
-import { resolvers } from './resolvers/book'
-import { typeDefs } from './schemas/book'
-
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import { json } from 'body-parser';
+import { connect_db } from './config/db'
+import { BookResolvers, UserResolvers } from './resolvers'
+import { BookTypeDefs, UserTypeDefs } from './schemas'
 import { BooksAPI } from './datasources/books';
 
 interface Context {
+  // token?: String;
   dataSources: {
     booksAPI: BooksAPI;
   };
 }
-
-const server = new ApolloServer<Context>({
-  typeDefs,
-  resolvers,
-});
+const PORT = process.env.PORT || 4000;
+connect_db()
 
 export async function startServer() {
-  const { url } = await startStandaloneServer(server, {
-    context: async () => {
-      const { cache } = server;
-       return {
-        dataSources: {
-          booksAPI: new BooksAPI({cache}),
-        },
-      }
-    },
+  const app = express();
+  const httpServer = http.createServer(app);
+  httpServer.listen({ port: PORT });
+  const server = new ApolloServer<Context>({
+    typeDefs: [BookTypeDefs, UserTypeDefs],
+    resolvers: [BookResolvers, UserResolvers],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
-  return url;
+
+  await server.start();
+  app.use(
+    '/graphql',
+    cors<cors.CorsRequest>(),
+    json(),
+    expressMiddleware(server, {
+      context: async ({ req, res }) => {
+        const { cache } = server;
+        return {
+          // token: req.headers.token || "Not found User",
+          dataSources: {
+            booksAPI: new BooksAPI({cache}),
+          }
+        }
+      },
+    }),
+  );
+return app
 }

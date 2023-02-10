@@ -23,3 +23,5 @@ Crud with apollo server and react
 # Run Dev
 
 - npm run dev
+
+If the project is running, you can see the the playground in: http://localhost:4000/graphql

@@ -1,4 +1,4 @@
-export const resolvers = {
+export const BookResolvers = {
   Query: {
     book: async (_, { id }, { dataSources }) => {
       return dataSources.booksAPI.getBook(id);

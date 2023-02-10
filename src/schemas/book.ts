@@ -1,4 +1,4 @@
-export const typeDefs = `#graphql
+export const BookTypeDefs = `#graphql
   type Book {
     id: ID!
     name: String!
