@@ -13,3 +13,10 @@ export interface OrderBook {
   quantity: Number
   timestamp: Number
 }
+
+export interface CurrentGithubUser {
+  name: String,
+  githubLogin: String,
+  githubToken: String,
+  avatar: String,
+}
