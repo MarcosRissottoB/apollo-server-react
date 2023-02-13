@@ -8,7 +8,6 @@ export const GithubTypeDefs = `#graphql
 
   type Query {
     githubLoginUrl: String!
-    
   }
 
   type GithubAuthPayload {

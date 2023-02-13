@@ -16,6 +16,28 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  github: {
+    name: {
+      type: String,
+      required: false,
+      lowercase: false,
+    },
+    githubLogin: {
+      type: String,
+      required: false,
+      lowercase: false,
+    },
+    githubToken: {
+      type: String,
+      required: false,
+      lowercase: false,
+    },
+    avatar: {
+      type: String,
+      required: false,
+      lowercase: false,
+    },
+  }
 });
 
 const model = mongoose.model("users", UserSchema);

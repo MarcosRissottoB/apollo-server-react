@@ -1,13 +1,16 @@
 import { RESTDataSource } from '@apollo/datasource-rest';
 import { CurrentGithubUser } from '../interfaces';
+import argon2 from 'argon2';
+import UserModel from "../models/User";
+import jwt from'jsonwebtoken';
 
+const SECRET = process.env.SECRET
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
 const GITHUB_BASE_URL ='https://github.com'
 const API_GITHUB = 'https://api.github.com';
 const GITHUB_ENDPOINT_LOGIN = '/login/oauth'
 const GITHUB_ENDPOINT_ACCESS_TOKEN = '/access_token';
-
 const GITHUB_ENDPOINT_AUTHORIZE = '/authorize';
 
 export class GithubAPI extends RESTDataSource {
@@ -62,6 +65,28 @@ export class GithubAPI extends RESTDataSource {
     }
   }
 
+  async GithubUserSave (githubUser) {
+    const hashed_password = await argon2.hash(`${githubUser.name}currentGithubUser1234`);
+    const user = await UserModel.create({
+      name: githubUser.name ? githubUser.name : githubUser.login,
+      email: `${githubUser.name}2@gmail.com`,
+      password: hashed_password,
+      github: {
+        ...githubUser
+      }
+    })
+    console.log('user saved', user)
+    const token = jwt.sign(
+      { data: { userId: user._id, email: user.email } },
+      SECRET,
+      { expiresIn: "1h" }
+    );
+    return {
+      user,
+      token
+    };
+  }
+
   async requestGithubUser (code) {
     const credentials = {
       client_id: GITHUB_CLIENT_ID,
@@ -71,13 +96,8 @@ export class GithubAPI extends RESTDataSource {
     try {
       const { access_token } = await this.requestGithubToken(credentials);
       const githubUser = await this.requestGithubUserAccount(access_token);
-      this.currentGithubUser = {
-        name: githubUser.name ? githubUser.name : githubUser.login,
-        githubLogin: githubUser.login,
-        githubToken: access_token,
-        avatar: githubUser.avatar_url
-      }
-      return {user: this.currentGithubUser, token: access_token}
+      const {user, token} = await this.GithubUserSave(githubUser)
+      return {user, token};
     } catch(err) {
       console.log('requestGithubUser', err)
     }

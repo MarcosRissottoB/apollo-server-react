@@ -7,8 +7,11 @@ export const GithubResolvers = {
   },
   Mutation: {
     authorizeWithGithub: async (_, { code }, { dataSources }) => {
-      const user = await dataSources.githubAPI.requestGithubUser({code})
-      return user
+      try {
+        return dataSources.githubAPI.requestGithubUser({code})
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };

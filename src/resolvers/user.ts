@@ -1,8 +1,7 @@
 import argon2 from 'argon2';
 import jwt from'jsonwebtoken';
-import model from "../models/User";
+import UserModel from "../models/User";
 
-const User = model
 const SECRET = process.env.SECRET
 
 export const UserResolvers = {
@@ -11,19 +10,19 @@ export const UserResolvers = {
   },
   Mutation: {
     createUser: async (_, {name, email}) => {
-      const user = await User.create({
+      const user = await UserModel.create({
         name, email
       })
       return user
     },
     signup: async (_, { name, email, password }) => {
       try {
-        const already_exsist = await User.findOne({ email });
+        const already_exsist = await UserModel.findOne({ email });
         if (already_exsist) {
           throw Error("Email already exists");
         }
         const hashed_password = await argon2.hash(password);
-        const user = await User.create({
+        const user = await UserModel.create({
           name,
           email,
           password: hashed_password,
@@ -35,7 +34,7 @@ export const UserResolvers = {
     },
     login: async (_, { email, password }) => {
       try {
-        const user = await User.findOne({ email });
+        const user = await UserModel.findOne({ email });
         if (!user) {
           throw Error("Invalid email given");
         }
