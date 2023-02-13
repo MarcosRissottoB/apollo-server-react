@@ -66,25 +66,28 @@ export class GithubAPI extends RESTDataSource {
   }
 
   async GithubUserSave (githubUser) {
-    const hashed_password = await argon2.hash(`${githubUser.name}currentGithubUser1234`);
-    const user = await UserModel.create({
-      name: githubUser.name ? githubUser.name : githubUser.login,
-      email: `${githubUser.name}2@gmail.com`,
-      password: hashed_password,
-      github: {
-        ...githubUser
-      }
-    })
-    console.log('user saved', user)
-    const token = jwt.sign(
-      { data: { userId: user._id, email: user.email } },
-      SECRET,
-      { expiresIn: "1h" }
-    );
-    return {
-      user,
-      token
-    };
+    try {
+      const hashed_password = await argon2.hash(`${githubUser.name}currentGithubUser1234`);
+      const user = await UserModel.create({
+        name: githubUser.name ? githubUser.name : githubUser.login,
+        email: `${githubUser.name}2@gmail.com`,
+        password: hashed_password,
+        github: {
+          ...githubUser
+        }
+      })
+      const token = jwt.sign(
+        { data: { userId: user._id, email: user.email } },
+        SECRET,
+        { expiresIn: "1h" }
+      );
+      return {
+        user,
+        token
+      };
+    } catch(err) {
+      console.log('GithubUserSave', err)
+    }
   }
 
   async requestGithubUser (code) {

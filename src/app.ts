@@ -11,14 +11,16 @@ import { BookResolvers, UserResolvers, GithubResolvers } from './resolvers'
 import { BookTypeDefs, UserTypeDefs, GithubTypeDefs } from './schemas'
 import { BooksAPI } from './datasources/books';
 import { GithubAPI } from './datasources/github';
+import { UserAPI } from './datasources/user';
 
 interface Context {
-  // token?: String;
   dataSources: {
     booksAPI: BooksAPI;
     githubAPI: GithubAPI;
+    userAPI: UserAPI;
   };
 }
+
 const PORT = process.env.PORT || 4000;
 connect_db()
 
@@ -44,14 +46,14 @@ export async function startServer() {
       context: async ({ req, res }) => {
         const { cache } = server;
         return {
-          // token: req.headers.token || "Not found User",
           dataSources: {
             booksAPI: new BooksAPI({cache}),
             githubAPI: new GithubAPI({cache}),
+            userAPI: new UserAPI({cache}),
           }
         }
       },
     }),
   );
-return app
+  return app
 }
