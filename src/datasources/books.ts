@@ -1,5 +1,4 @@
 import { RESTDataSource, AugmentedRequest } from '@apollo/datasource-rest';
-
 import {Book, OrderBook} from '../interfaces';
 
 const BASE_URL = process.env.BASE_URL;
