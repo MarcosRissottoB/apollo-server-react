@@ -14,6 +14,7 @@ import { GithubAPI } from './datasources/github';
 import { UserAPI } from './datasources/user';
 
 interface Context {
+  token: String,
   dataSources: {
     booksAPI: BooksAPI;
     githubAPI: GithubAPI;
@@ -45,7 +46,9 @@ export async function startServer() {
     expressMiddleware(server, {
       context: async ({ req, res }) => {
         const { cache } = server;
+        const token = req.headers.authorization || '';
         return {
+          token: req.headers.authorization || '',
           dataSources: {
             booksAPI: new BooksAPI({cache}),
             githubAPI: new GithubAPI({cache}),

@@ -16,10 +16,10 @@ export const BookTypeDefs = `#graphql
   }
 
   type Query {
-    book(id: ID!): Book
-    books: [Book]
-    orderBook(id: ID!): OrderBook
-    orderBooks: [OrderBook]
+    book(id: ID!): Book!
+    books: [Book]!
+    orderBook(id: ID!): OrderBook!
+    orderBooks: [OrderBook]!
   }
 
   type CreateOrderBookResponse {

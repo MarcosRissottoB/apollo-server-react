@@ -70,7 +70,7 @@ export class GithubAPI extends RESTDataSource {
       const hashed_password = await argon2.hash(`${githubUser.name}currentGithubUser1234`);
       const user = await UserModel.create({
         name: githubUser.name ? githubUser.name : githubUser.login,
-        email: `${githubUser.name}@gmail.com`,
+        email: `${githubUser.name ? githubUser.name : githubUser.login}@gmail.com`,
         password: hashed_password,
         github: {
           ...githubUser
